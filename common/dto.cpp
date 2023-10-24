@@ -2,13 +2,11 @@
 
 Dto::Dto() {}
 
-Dto::Dto(const std::string &message) : msg(message) {}
+Dto::Dto(uint8_t code) : code(code) {}
 
 Dto::~Dto() {}
 
-std::string Dto::message() { return msg; }
-
-uint8_t Dto::code() { return 0; }
+uint8_t Dto::return_code() { return code; }
 
 uint8_t Dto::orientation() { return 1; }
 
@@ -18,7 +16,7 @@ bool Dto::is_alive() { return false; }
 /*-------------------------------DEAD_MESSAGE-------------------------------------------------*/
 /*--------------------------------------------------------------------------------------------*/
 
-DeadDto::DeadDto() : Dto(FIN) {}
+DeadDto::DeadDto() : Dto() {}
 
 DeadDto::~DeadDto() {}
 
@@ -28,7 +26,7 @@ bool DeadDto::is_alive() { return false; }
 /*-------------------------------DEAD_MESSAGE-------------------------------------------------*/
 /*--------------------------------------------------------------------------------------------*/
 
-Move::Move() : Dto("move") {}
+Move::Move() : Dto(MOVE_CODE) {}
 
 Move::~Move() {}
 
@@ -38,7 +36,7 @@ bool Move::is_alive() { return true; }
 /*-------------------------------DEAD_MESSAGE-------------------------------------------------*/
 /*--------------------------------------------------------------------------------------------*/
 
-Dir::Dir(uint8_t m) : Dto("dir"), mode(m) {}
+Dir::Dir(uint8_t m) : Dto(DIR_CODE), mode(m) {}
 
 Dir::~Dir() {}
 
@@ -50,7 +48,7 @@ uint8_t Dir::orientation() { return mode; }
 /*-------------------------------DEAD_MESSAGE-------------------------------------------------*/
 /*--------------------------------------------------------------------------------------------*/
 
-Jump::Jump(uint8_t m) : Dto("jump"), mode(m) {}
+Jump::Jump(uint8_t m) : Dto(JUMP_CODE), mode(m) {}
 
 Jump::~Jump() {}
 

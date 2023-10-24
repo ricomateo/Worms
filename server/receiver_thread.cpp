@@ -1,5 +1,14 @@
 #include "receiver_thread.h"
 
+void Receiver::broadcastDto(Dto *dto)
+{
+    if (dto->return_code() == MOVE__CODE)
+        broadcaster.addMoveToQueues(dto);
+    else if (dto->return_code() == DIR__CODE)
+        broadcaster.addDirToQueues(dto);
+    else
+        broadcaster.addJumpToQueues(dto);
+}
 void Receiver::run()
 {
     while (not was_closed)
@@ -8,12 +17,7 @@ void Receiver::run()
 
         if (dto->is_alive())
         {
-            if (dto->message() == "move")
-                broadcaster.addMoveToQueues(dto);
-            else if (dto->message() == "dir")
-                broadcaster.addDirToQueues(dto);
-            else
-                broadcaster.addJumpToQueues(dto);
+            broadcastDto(dto);
         }
         else
         {

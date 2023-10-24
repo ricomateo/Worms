@@ -5,6 +5,9 @@
 #include <string>
 
 const char VACIO[] = "";
+const uint8_t MOVE_CODE = 1;
+const uint8_t DIR_CODE = 2;
+const uint8_t JUMP_CODE = 3;
 const uint8_t CLIENT_CHAT_CODE = 5;
 const uint8_t CODE_PLAYER_CNT = 6;
 const uint8_t CODE_CHAT_MESSAGE = 9;
@@ -12,18 +15,16 @@ const uint8_t CODE_CHAT_MESSAGE = 9;
 class Dto
 {
 private:
-    std::string msg;
+    uint8_t code;
 
 public:
     Dto();
-    explicit Dto(const std::string &message);
+    explicit Dto(uint8_t code);
     virtual ~Dto();
 
-    virtual std::string message();
-    virtual uint8_t code();
     virtual uint8_t orientation();
     virtual bool is_alive();
-    virtual uint8_t return_code();
+    uint8_t return_code();
 };
 
 class DeadDto : public Dto
@@ -40,7 +41,6 @@ public:
     Move();
     ~Move();
     bool is_alive() override;
-    uint8_t return_code() override;
 };
 
 class Jump : public Dto
@@ -53,7 +53,6 @@ public:
     ~Jump();
     bool is_alive() override;
     uint8_t orientation() override;
-    uint8_t return_code() override;
 };
 
 class Dir : public Dto
@@ -65,7 +64,6 @@ public:
     Dir(uint8_t m);
     ~Dir();
     bool is_alive() override;
-    uint8_t return_code() override;
     uint8_t orientation() override;
 };
 

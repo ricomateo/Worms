@@ -19,15 +19,15 @@ void Sender::run()
             delete dto;
         }
 
-        if (dto->message() == "move")
+        if (dto->return_code() == CODE_MOVE)
         {
             game.mover();
         }
-        else if (dto->message() == "dir")
+        else if (dto->return_code() == CODE_DIR)
         {
             game.invertirDireccion(dto->orientation());
         }
-        else if (dto->message() == "jump")
+        else if (dto->return_code() == CODE_JUMP)
         {
             game.saltar(dto->orientation());
         }
