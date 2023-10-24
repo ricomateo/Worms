@@ -18,7 +18,6 @@ private:
 
 public:
     void addMessageToQueues();
-    void addMessageToQueues(Dto *dto);
     void addMoveToQueues(Dto *dto);
     void addDirToQueues(Dto *dto);
     void addJumpToQueues(Dto *dto);

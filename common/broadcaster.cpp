@@ -6,33 +6,17 @@
  */
 void Broadcaster::addMessageToQueues()
 {
-    std::unique_lock<std::mutex> lock(mutex);
-    Dto *dto = new PlayersMessage(static_cast<uint8_t>(queues.size()));
-    for (auto q : queues)
-    {
-        Dto *d = new PlayersMessage(static_cast<uint8_t>(queues.size()));
-        q->push(d);
-    }
+    // std::unique_lock<std::mutex> lock(mutex);
+    // Dto *dto = new PlayersMessage(static_cast<uint8_t>(queues.size()));
+    // for (auto q : queues)
+    // {
+    //     Dto *d = new PlayersMessage(static_cast<uint8_t>(queues.size()));
+    //     q->push(d);
+    // }
 
-    std::cout << dto->message() << std::endl;
+    // std::cout << dto->message() << std::endl;
 
-    delete dto;
-}
-
-/*
- *   Por cada cola, crea una nueva instancia del Dto recibido, y se lo agrega a todas.
- *   Luego lo elimina el Dto original del HEAP
- *   (Se que solo llegaran a este metodos mensajes de tipo chat)
- */
-void Broadcaster::addMessageToQueues(Dto *dto)
-{
-    std::unique_lock<std::mutex> lock(mutex);
-    for (auto q : queues)
-    {
-        Dto *d = new ChatMessage(dto->message());
-        q->push(d);
-    }
-    delete dto;
+    // delete dto;
 }
 
 void Broadcaster::addMoveToQueues(Dto *dto)

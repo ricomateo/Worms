@@ -12,7 +12,7 @@ const int DIRECCION_IZQUIERDA = 0;
 const int DIRECCION_DERECHA = 1;
 const int SALTO_ADELANTE = 0;
 
-Juego::Juego(std::string nombre) : direccion(0), posicionG(2, 0), nombre_archivo(std::string(nombre))
+Juego::Juego(std::string nombre) : direccion(0), nombre_archivo(std::string(nombre))
 {
     escenario.filas = 0;
     escenario.columnas = 0;
@@ -117,7 +117,7 @@ void Juego::armar_escenario()
 // Imprime el escenario
 void Juego::imprimir()
 {
-    // system("clear");
+    system("clear");
     for (int i = 0; i < escenario.filas; i++)
     {
         for (int j = 0; j < escenario.columnas; j++)
@@ -143,10 +143,8 @@ void Juego::completarMatriz(const std::string &linea)
             escenario.matriz[escenario.indice_i][escenario.indice_j] = linea[i];
             if (linea[i] == GUSANO)
             {
-                posicionG.clear(); // limpio lo que contiene el vtr
-                // le asigno la ubicacion
-                posicionG.push_back(escenario.indice_i);
-                posicionG.push_back(escenario.indice_j);
+                gusano.y = escenario.indice_i;
+                gusano.x = escenario.indice_j;
             }
             escenario.indice_j++;
         }
@@ -163,8 +161,10 @@ void Juego::completarMatriz(const std::string &linea)
 std::vector<uint32_t> Juego::posicionGusano() const
 {
     std::vector<uint32_t> posicion;
-    posicion.push_back(static_cast<uint32_t>(posicionG[0]));
-    posicion.push_back(static_cast<uint32_t>(posicionG[1]));
+    posicion.push_back(gusano.y);
+    posicion.push_back(gusano.x);
+    // posicion.push_back(static_cast<uint32_t>(posicionG[0]));
+    // posicion.push_back(static_cast<uint32_t>(posicionG[1]));
     return posicion;
 }
 
@@ -175,16 +175,16 @@ std::vector<uint32_t> Juego::posicionGusano() const
  */
 bool Juego::moverArriba()
 {
-    int y = posicionG[0];
-    int x = posicionG[1];
+    int y = gusano.y;
+    int x = gusano.x;
 
     bool la_siguiente_no_es_pared = (escenario.matriz[y - 1][x] != PARED);
 
     if (y > 0 && la_siguiente_no_es_pared)
     {
-        escenario.matriz[posicionG[0]][posicionG[1]] = VACIO;
-        posicionG[0] -= 1;
-        escenario.matriz[posicionG[0]][posicionG[1]] = GUSANO;
+        escenario.matriz[gusano.y][gusano.x] = VACIO;
+        gusano.y -= 1;
+        escenario.matriz[gusano.y][gusano.x] = GUSANO;
     }
     return la_siguiente_no_es_pared;
 }
@@ -194,14 +194,14 @@ bool Juego::moverArriba()
  */
 void Juego::moverAbajo()
 {
-    int y = posicionG[0];
-    int x = posicionG[1];
+    int y = gusano.y;
+    int x = gusano.x;
 
     if (y + 1 < escenario.filas && escenario.matriz[y + 1][x] != PARED)
     {
-        escenario.matriz[posicionG[0]][posicionG[1]] = VACIO;
-        posicionG[0] += 1;
-        escenario.matriz[posicionG[0]][posicionG[1]] = GUSANO;
+        escenario.matriz[gusano.y][gusano.x] = VACIO;
+        gusano.y += 1;
+        escenario.matriz[gusano.y][gusano.x] = GUSANO;
     }
 }
 
@@ -212,17 +212,16 @@ void Juego::moverAbajo()
  */
 bool Juego::moverDerecha()
 {
-    std::cout << "entra al mover a derecha\n";
-    int y = posicionG[0];
-    int x = posicionG[1];
+    int y = gusano.y;
+    int x = gusano.x;
 
     bool la_siguiente_no_es_pared = (escenario.matriz[y][x + 1] != PARED);
 
     if (x + 1 < escenario.columnas && la_siguiente_no_es_pared)
     {
-        escenario.matriz[posicionG[0]][posicionG[1]] = VACIO;
-        posicionG[1] += 1;
-        escenario.matriz[posicionG[0]][posicionG[1]] = GUSANO;
+        escenario.matriz[gusano.y][gusano.x] = VACIO;
+        gusano.x += 1;
+        escenario.matriz[gusano.y][gusano.x] = GUSANO;
     }
     return la_siguiente_no_es_pared;
 }
@@ -234,16 +233,16 @@ bool Juego::moverDerecha()
  */
 bool Juego::moverIzquierda()
 {
-    int y = posicionG[0];
-    int x = posicionG[1];
+    int y = gusano.y;
+    int x = gusano.x;
 
     bool la_siguiente_no_es_pared = (escenario.matriz[y][x - 1] != PARED);
 
     if (x > 0 && la_siguiente_no_es_pared)
     {
-        escenario.matriz[posicionG[0]][posicionG[1]] = VACIO;
-        posicionG[1] -= 1;
-        escenario.matriz[posicionG[0]][posicionG[1]] = GUSANO;
+        escenario.matriz[gusano.y][gusano.x] = VACIO;
+        gusano.x -= 1;
+        escenario.matriz[gusano.y][gusano.x] = GUSANO;
     }
     return la_siguiente_no_es_pared;
 }
@@ -254,7 +253,7 @@ bool Juego::moverIzquierda()
  */
 void Juego::simularGravedad()
 {
-    while (escenario.matriz[posicionG[0] + 1][posicionG[1]] != PARED)
+    while (escenario.matriz[gusano.y + 1][gusano.x] != PARED)
     {
         moverAbajo();
     }

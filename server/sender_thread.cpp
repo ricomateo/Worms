@@ -25,7 +25,6 @@ void Sender::run()
         }
         else if (dto->message() == "dir")
         {
-            printf("dir mode: %u\n", dto->orientation());
             game.invertirDireccion(dto->orientation());
         }
         else if (dto->message() == "jump")
@@ -36,7 +35,6 @@ void Sender::run()
         game.imprimir();
 
         std::vector<uint32_t> pos = game.posicionGusano();
-        // protocol.send(was_closed, dto);
         protocol.send_position(was_closed, pos);
 
         delete dto;
