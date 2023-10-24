@@ -8,8 +8,12 @@ void Receiver::run()
 
         if (dto->is_alive())
         {
-            std::cout << dto->message() << std::endl; // proteger
-            broadcaster.addMessageToQueues(dto);
+            if (dto->message() == "move")
+                broadcaster.addMoveToQueues(dto);
+            else if (dto->message() == "dir")
+                broadcaster.addDirToQueues(dto);
+            else
+                broadcaster.addJumpToQueues(dto);
         }
         else
         {
@@ -18,7 +22,6 @@ void Receiver::run()
         }
     }
     broadcaster.removeQueueFromList(&queue);
-    broadcaster.addMessageToQueues();
 }
 
 Receiver::Receiver(ServerProtocol &p, BlockingQueue &q, Broadcaster &b) : protocol(p), queue(q), broadcaster(b), was_closed(false) {}

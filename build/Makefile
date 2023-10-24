@@ -454,6 +454,30 @@ server/aceptador.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server/aceptador.cpp.s
 .PHONY : server/aceptador.cpp.s
 
+server/juego.o: server/juego.cpp.o
+.PHONY : server/juego.o
+
+# target to build an object file
+server/juego.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server/juego.cpp.o
+.PHONY : server/juego.cpp.o
+
+server/juego.i: server/juego.cpp.i
+.PHONY : server/juego.i
+
+# target to preprocess a source file
+server/juego.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server/juego.cpp.i
+.PHONY : server/juego.cpp.i
+
+server/juego.s: server/juego.cpp.s
+.PHONY : server/juego.s
+
+# target to generate assembly for a file
+server/juego.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server/juego.cpp.s
+.PHONY : server/juego.cpp.s
+
 server/main.o: server/main.cpp.o
 .PHONY : server/main.o
 
@@ -644,6 +668,9 @@ help:
 	@echo "... server/aceptador.o"
 	@echo "... server/aceptador.i"
 	@echo "... server/aceptador.s"
+	@echo "... server/juego.o"
+	@echo "... server/juego.i"
+	@echo "... server/juego.s"
 	@echo "... server/main.o"
 	@echo "... server/main.i"
 	@echo "... server/main.s"

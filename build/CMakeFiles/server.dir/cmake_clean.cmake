@@ -17,6 +17,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/server.dir/common/wrap_socket.cpp.o.d"
   "CMakeFiles/server.dir/server/aceptador.cpp.o"
   "CMakeFiles/server.dir/server/aceptador.cpp.o.d"
+  "CMakeFiles/server.dir/server/juego.cpp.o"
+  "CMakeFiles/server.dir/server/juego.cpp.o.d"
   "CMakeFiles/server.dir/server/main.cpp.o"
   "CMakeFiles/server.dir/server/main.cpp.o.d"
   "CMakeFiles/server.dir/server/receiver_thread.cpp.o"

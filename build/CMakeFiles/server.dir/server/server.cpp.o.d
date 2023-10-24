@@ -215,4 +215,5 @@ CMakeFiles/server.dir/server/server.cpp.o: \
  /home/fede/Documentos/Taller/tp-worms/server/server_client.h \
  /home/fede/Documentos/Taller/tp-worms/server/receiver_thread.h \
  /home/fede/Documentos/Taller/tp-worms/server/server_protocol.h \
- /home/fede/Documentos/Taller/tp-worms/server/sender_thread.h
+ /home/fede/Documentos/Taller/tp-worms/server/sender_thread.h \
+ /home/fede/Documentos/Taller/tp-worms/server/juego.h

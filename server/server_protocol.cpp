@@ -1,11 +1,11 @@
 #include "server_protocol.h"
 
-ServerProtocol::ServerProtocol(Socket& skt): skt(skt) {}
+ServerProtocol::ServerProtocol(Socket &skt) : skt(skt) {}
 
 ServerProtocol::~ServerProtocol() {}
 
-
-void ServerProtocol::players_message(bool& was_closed, uint8_t number_of_clients) {
+void ServerProtocol::players_message(bool &was_closed, uint8_t number_of_clients)
+{
     skt.sendall(&PLAYER_CNT_CODE, sizeof(PLAYER_CNT_CODE), &was_closed);
 
     if (was_closed)
@@ -17,8 +17,8 @@ void ServerProtocol::players_message(bool& was_closed, uint8_t number_of_clients
         return;
 }
 
-
-void ServerProtocol::chat_message(bool& was_closed, const std::string& msj) {
+void ServerProtocol::chat_message(bool &was_closed, const std::string &msj)
+{
     uint16_t tam = htons(msj.size());
 
     skt.sendall(&CHAT_MSG_CODE, sizeof(CHAT_MSG_CODE), &was_closed);
@@ -37,7 +37,8 @@ void ServerProtocol::chat_message(bool& was_closed, const std::string& msj) {
         return;
 }
 
-void ServerProtocol::send(bool& was_closed, Dto* msj) {
+void ServerProtocol::send(bool &was_closed, Dto *msj)
+{
 
     if (was_closed)
         return;
@@ -50,7 +51,8 @@ void ServerProtocol::send(bool& was_closed, Dto* msj) {
         return;
 }
 
-uint8_t ServerProtocol::recv_comand(bool& was_closed) {
+uint8_t ServerProtocol::recv_comand(bool &was_closed)
+{
     uint8_t comando;
 
     skt.recvall(&comando, sizeof(comando), &was_closed);
@@ -61,7 +63,8 @@ uint8_t ServerProtocol::recv_comand(bool& was_closed) {
     return comando;
 }
 
-uint16_t ServerProtocol::recv_size_of_message(bool& was_closed) {
+uint16_t ServerProtocol::recv_size_of_message(bool &was_closed)
+{
     if (was_closed)
         return 0;
 
@@ -75,30 +78,58 @@ uint16_t ServerProtocol::recv_size_of_message(bool& was_closed) {
     return sz_2;
 }
 
-Dto* ServerProtocol::recv_message(bool& was_closed, uint16_t sz, uint8_t code) {
-
-    if (was_closed || sz == 0)
-        return new DeadDto();
-
-    std::vector<char> msj(sz);
-    skt.recvall(msj.data(), msj.size(), &was_closed);
+Dto *ServerProtocol::handle_dir(bool &was_closed, uint8_t code)
+{
 
     if (was_closed)
         return new DeadDto();
 
-    std::string mensaje(msj.begin(), msj.end());
+    uint8_t mode;
+    skt.recvall(&mode, sizeof(mode), &was_closed);
 
-    return new ChatMessage(mensaje, code);
+    if (was_closed)
+        return new DeadDto();
+
+    return new Dir(mode);
 }
 
+Dto *ServerProtocol::handle_jump(bool &was_closed, uint8_t code)
+{
 
-Dto* ServerProtocol::decode(bool& was_closed) {
     if (was_closed)
         return new DeadDto();
 
+    uint8_t mode;
+    skt.recvall(&mode, sizeof(mode), &was_closed);
+
+    if (was_closed)
+        return new DeadDto();
+
+    return new Jump(mode);
+}
+
+Dto *ServerProtocol::decode(bool &was_closed)
+{
+    if (was_closed)
+        return new DeadDto();
+    Dto *dto;
     uint8_t comando = recv_comand(was_closed);
-    uint16_t sz = recv_size_of_message(was_closed);
-    Dto* dto = recv_message(was_closed, sz, comando);
+
+    if (comando == 4)
+        dto = new Move();
+    else if (comando == 3)
+        dto = handle_dir(was_closed, comando);
+    else
+        dto = handle_jump(was_closed, comando);
 
     return dto;
+}
+
+void ServerProtocol::send_position(bool &was_closed, std::vector<uint32_t> pos)
+{
+    uint32_t x = htonl(pos[1]);
+    uint32_t y = htonl(pos[0]);
+
+    skt.sendall(&(x), sizeof(x), &was_closed);
+    skt.sendall(&(y), sizeof(y), &was_closed);
 }

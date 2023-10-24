@@ -35,6 +35,39 @@ void Broadcaster::addMessageToQueues(Dto *dto)
     delete dto;
 }
 
+void Broadcaster::addMoveToQueues(Dto *dto)
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    for (auto q : queues)
+    {
+        Dto *d = new Move();
+        q->push(d);
+    }
+    delete dto;
+}
+
+void Broadcaster::addDirToQueues(Dto *dto)
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    for (auto q : queues)
+    {
+        Dto *d = new Dir(dto->orientation());
+        q->push(d);
+    }
+    delete dto;
+}
+
+void Broadcaster::addJumpToQueues(Dto *dto)
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    for (auto q : queues)
+    {
+        Dto *d = new Jump(dto->orientation());
+        q->push(d);
+    }
+    delete dto;
+}
+
 /*
  *  Agrega una cola a la lista de colas.
  */

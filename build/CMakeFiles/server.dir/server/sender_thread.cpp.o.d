@@ -208,4 +208,5 @@ CMakeFiles/server.dir/server/sender_thread.cpp.o: \
  /usr/include/c++/11/bits/algorithmfwd.h \
  /usr/include/c++/11/bits/stl_tempbuf.h \
  /usr/include/c++/11/bits/uniform_int_dist.h \
- /home/fede/Documentos/Taller/tp-worms/common/dto.h
+ /home/fede/Documentos/Taller/tp-worms/common/dto.h \
+ /home/fede/Documentos/Taller/tp-worms/server/juego.h

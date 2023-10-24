@@ -1,0 +1,11 @@
+9 5 basic
+XXXXXXXXX
+X       X
+X       X
+X G X   X
+XXXXXXXXX
+4 4 small
+XXXX
+X  X
+X GX
+XXXX

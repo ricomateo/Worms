@@ -32,7 +32,7 @@ public:
 
             clients.push_back(th);
             broadcaster.addQueueToList(std::ref(th->queue));
-            broadcaster.addMessageToQueues();
+            // broadcaster.addMessageToQueues();
         }
         kill_all();
     }

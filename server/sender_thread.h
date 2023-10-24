@@ -13,6 +13,7 @@
 #include "socket.h"
 #include "thread.h"
 #include "server_protocol.h"
+#include "juego.h"
 
 struct Sender : public Thread
 {

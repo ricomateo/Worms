@@ -10,14 +10,14 @@ Client::~Client() {}
  */
 void Client::receiveNTimes(std::string data, size_t pos)
 {
-    int n = std::stoi(data.substr(pos + 1));
+    // int n = std::stoi(data.substr(pos + 1));
 
-    for (int i = 0; i < n; i++)
-    {
-        Dto *dto = protocolo.receive(was_closed);
-        std::cout << dto->message() << std::endl;
-        delete dto;
-    }
+    // for (int i = 0; i < n; i++)
+    // {
+    //     Dto *dto = protocolo.receive(was_closed);
+    //     // std::cout << dto->message() << std::endl;
+    //     delete dto;
+    // }
 }
 
 /*
@@ -39,10 +39,12 @@ void Client::encode(std::string data)
     size_t pos = data.find(' ');
     std::string first_word = data.substr(0, pos);
 
-    if (first_word == CHAT)
-        protocolo.sendChatMsj(data, was_closed);
-    else if (first_word == READ)
-        receiveNTimes(data, pos);
+    if (first_word == "move")
+        protocolo.handle_move(was_closed);
+    else if (first_word == "jump")
+        protocolo.handle_jump(static_cast<uint8_t>(std::stoi(data.substr(pos + 1))), was_closed);
+    else if (first_word == "dir")
+        protocolo.handle_dir(static_cast<uint8_t>(std::stoi(data.substr(pos + 1))), was_closed);
     else if (first_word == EXIT)
         closeEverything();
     else
@@ -64,6 +66,11 @@ void Client::start()
             break;
 
         encode(data);
+
+        if (was_closed)
+            break;
+
+        protocolo.recibir_posicion(was_closed);
 
         if (was_closed)
             break;

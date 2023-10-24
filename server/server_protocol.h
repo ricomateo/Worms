@@ -25,6 +25,7 @@ public:
     ~ServerProtocol();
     Dto *decode(bool &was_closed);
     void send(bool &was_closed, Dto *msj);
+    void send_position(bool &was_closed, std::vector<uint32_t> pos);
 
 private:
     Socket &skt;
@@ -32,6 +33,8 @@ private:
     void chat_message(bool &was_closed, const std::string &msj);
     uint8_t recv_comand(bool &was_closed);
     uint16_t recv_size_of_message(bool &was_closed);
-    Dto *recv_message(bool &was_closed, uint16_t sz, uint8_t code);
+    Dto *recv_message(bool &was_closed, uint8_t code);
+    Dto *handle_dir(bool &was_closed, uint8_t code);
+    Dto *handle_jump(bool &was_closed, uint8_t code);
 };
 #endif
