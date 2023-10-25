@@ -36,27 +36,27 @@ ClientProtocol::~ClientProtocol() {}
 //         return;
 // }
 
-// Dto *ClientProtocol::receiveChatMessage(bool &was_closed)
-// {
-//     if (was_closed)
-//         return new DeadDto();
+Dto *ClientProtocol::receive(bool &was_closed)
+{
+    if (was_closed)
+        return new DeadDto();
 
-//     uint16_t sz;
-//     skt.recvall(&sz, sizeof(sz), &was_closed);
-//     if (was_closed)
-//         return new DeadDto();
+    uint16_t sz;
+    skt.recvall(&sz, sizeof(sz), &was_closed);
+    if (was_closed)
+        return new DeadDto();
 
-//     uint16_t lenght = ntohs(sz);
+    uint16_t lenght = ntohs(sz);
 
-//     std::vector<char> msg(lenght);
-//     skt.recvall(msg.data(), msg.size(), &was_closed);
-//     if (was_closed)
-//         return new DeadDto();
+    std::vector<char> msg(lenght);
+    skt.recvall(msg.data(), msg.size(), &was_closed);
+    if (was_closed)
+        return new DeadDto();
 
-//     std::string message(msg.begin(), msg.end());
+    std::string message(msg.begin(), msg.end());
 
-//     return new ChatMessage(message);
-// }
+    return new MapLine(message);
+}
 
 // Dto *ClientProtocol::receiveNumberOfPlayers(bool &was_closed)
 // {
@@ -103,7 +103,7 @@ void ClientProtocol::handle_dir(uint8_t orientacion, bool &was_closed)
     skt.sendall(&orientacion, sizeof(orientacion), &was_closed);
 }
 
-void ClientProtocol::recibir_posicion(bool &was_closed)
+Dto *ClientProtocol::recibir_posicion(bool &was_closed)
 {
     uint32_t pos_x;
     uint32_t pos_y;
@@ -114,5 +114,10 @@ void ClientProtocol::recibir_posicion(bool &was_closed)
     uint32_t x = ntohl(pos_x);
     uint32_t y = ntohl(pos_y);
 
+    std::vector<uint32_t> pos;
+    pos.push_back(y);
+    pos.push_back(x);
+
     printf("%u %u\n", x, y);
+    return new Position(pos);
 }

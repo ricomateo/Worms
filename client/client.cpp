@@ -52,10 +52,69 @@ void Client::encode(std::string data)
     return;
 }
 
+void Client::addLineToMap(Dto *dto, int fila)
+{
+
+    int col = 0;
+    int tope = (dto->return_line()).size();
+    std::string linea(dto->return_line());
+    for (int i = 0; i < tope; i++)
+    {
+        matriz[fila][i] = linea[i];
+        col++;
+    }
+    columnas = col;
+    filas = fila;
+}
+
+void Client::chargeMap()
+{
+    matriz.resize(5, std::vector<char>(9));
+    Dto *dto;
+    bool is_notcomplete = true;
+    int fila = 0;
+    while (is_notcomplete)
+    {
+        dto = protocolo.receive(was_closed);
+        if (dto->return_line() == "fin")
+            is_notcomplete = false;
+        else
+            addLineToMap(dto, fila);
+
+        fila++;
+    }
+}
+
+void Client::imprimirMapa()
+{
+    for (int i = 0; i <= filas; i++)
+    {
+        for (int j = 0; j < columnas; j++)
+            std::cout << matriz[i][j];
+        std::cout << "\n";
+    }
+}
+
+void Client::receivePosition()
+{
+    if (not(x == 0 && y == 0))
+        matriz[y][x] = ' ';
+
+    Dto *pos = protocolo.recibir_posicion(was_closed);
+    x = pos->x_pos();
+    y = pos->y_pos();
+    matriz[y][x] = 'G';
+    imprimirMapa();
+}
+
 void Client::start()
 {
 
     std::string data;
+
+    chargeMap();
+    receivePosition();
+
     while (not was_closed)
     {
         data.clear();
@@ -70,7 +129,8 @@ void Client::start()
         if (was_closed)
             break;
 
-        protocolo.recibir_posicion(was_closed);
+        // protocolo.recibir_posicion(was_closed);
+        receivePosition();
 
         if (was_closed)
             break;

@@ -31,7 +31,7 @@ public:
     void handle_move(bool &was_closed);
     void handle_jump(uint8_t orientacion, bool &was_closed);
     void handle_dir(uint8_t orientacion, bool &was_closed);
-    void recibir_posicion(bool &was_closed);
+    Dto *recibir_posicion(bool &was_closed);
 
 private:
     Socket &skt;

@@ -21,18 +21,20 @@ private:
 public:
     void run() override
     {
+        Juego game("escenarios.txt");
+        game.armar_escenario(); // armo el escenario 1 sola vez y se lo paso a los clientes
         while (_keep_running)
         {
             Socket peer = skt.accept();
 
-            ServerClient *th = new ServerClient(std::move(peer), std::ref(broadcaster));
+            ServerClient *th = new ServerClient(std::move(peer), std::ref(broadcaster), std::ref(game));
             th->start();
 
             reap_dead();
 
             clients.push_back(th);
             broadcaster.addQueueToList(std::ref(th->queue));
-            // broadcaster.addMessageToQueues();
+            broadcastMap(std::ref(game), std::ref(th->queue));
         }
         kill_all();
     }
@@ -68,6 +70,23 @@ public:
             return false; });
         if (was_removed)
             broadcaster.removeQueueFromList(client_queue);
+    }
+
+    void broadcastMap(Juego &g, BlockingQueue &q)
+    {
+        int cant_filas = g.filas();
+        for (int fila = 0; fila < cant_filas; fila++)
+        {
+            std::string l = g.mapa_fila(fila);
+            Dto *d = new MapLine(l);
+            broadcaster.sendLineMap(d);
+        }
+
+        Dto *dead = new MapLine(std::string("fin"));
+        broadcaster.sendLineMap(dead);
+
+        Dto *pos = new Position(g.posicionGusano());
+        broadcaster.addPositionToQueues(pos, g.posicionGusano());
     }
 
     explicit Aceptador(Socket &skt) : skt(skt) {}

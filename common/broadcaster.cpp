@@ -1,22 +1,21 @@
 #include "broadcaster.h"
 
-/*
- *   Crea un Dto y agrega a todas las colas una instancia nueva del dto
- *   Luego lo elimina del HEAP
- */
-void Broadcaster::addMessageToQueues()
+void Broadcaster::sendLineMap(Dto *dto)
 {
-    // std::unique_lock<std::mutex> lock(mutex);
-    // Dto *dto = new PlayersMessage(static_cast<uint8_t>(queues.size()));
-    // for (auto q : queues)
-    // {
-    //     Dto *d = new PlayersMessage(static_cast<uint8_t>(queues.size()));
-    //     q->push(d);
-    // }
+    std::unique_lock<std::mutex> lock(mutex);
+    BlockingQueue *q = queues.back(); // tomo la ultima queue insertada
+    q->push(dto);
+}
 
-    // std::cout << dto->message() << std::endl;
-
-    // delete dto;
+void Broadcaster::addPositionToQueues(Dto *dto, std::vector<uint32_t> pos)
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    for (auto q : queues)
+    {
+        Dto *d = new Position(pos);
+        q->push(d);
+    }
+    delete dto;
 }
 
 void Broadcaster::addMoveToQueues(Dto *dto)

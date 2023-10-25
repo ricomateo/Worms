@@ -101,11 +101,13 @@ void Juego::armar_escenario()
 {
     escenario.filas = 5;
     escenario.columnas = 9;
+    gusano.y = 3;
+    gusano.x = 2;
     escenario.matriz.resize(escenario.filas, std::vector<char>(escenario.columnas));
     std::string linea1("XXXXXXXXX");
     std::string linea2("X       X");
     std::string linea3("X       X");
-    std::string linea4("X G X   X");
+    std::string linea4("X   X   X");
     std::string linea5("XXXXXXXXX");
     completarMatriz(linea1);
     completarMatriz(linea2);
@@ -163,8 +165,6 @@ std::vector<uint32_t> Juego::posicionGusano() const
     std::vector<uint32_t> posicion;
     posicion.push_back(gusano.y);
     posicion.push_back(gusano.x);
-    // posicion.push_back(static_cast<uint32_t>(posicionG[0]));
-    // posicion.push_back(static_cast<uint32_t>(posicionG[1]));
     return posicion;
 }
 
@@ -320,9 +320,20 @@ void Juego::saltar(uint8_t orientacion)
  */
 void Juego::invertirDireccion(uint8_t orientacion)
 {
-    printf("direc en invertir = %u\n", orientacion);
     if (orientacion < 1)
         direccion = DIRECCION_IZQUIERDA;
     else
         direccion = DIRECCION_DERECHA;
 }
+
+std::string Juego::mapa_fila(int fila)
+{
+    std::string linea;
+    for (int i = 0; i < escenario.columnas; i++)
+    {
+        linea = linea + escenario.matriz[fila][i];
+    }
+    return linea;
+}
+
+int Juego::filas() { return escenario.filas; }

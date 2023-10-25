@@ -4,6 +4,22 @@ ServerProtocol::ServerProtocol(Socket &skt) : skt(skt) {}
 
 ServerProtocol::~ServerProtocol() {}
 
+void ServerProtocol::sendPosition(Dto *dto, bool &was_closed)
+{
+    uint32_t x = htonl(dto->x_pos());
+    uint32_t y = htonl(dto->y_pos());
+
+    skt.sendall(&(x), sizeof(x), &was_closed);
+    skt.sendall(&(y), sizeof(y), &was_closed);
+}
+
+void ServerProtocol::sendMap(Dto *dto, bool &was_closed)
+{
+    uint16_t sz = htons((dto->return_line()).size());
+    skt.sendall(&(sz), sizeof(sz), &was_closed);
+    skt.sendall((dto->return_line()).c_str(), (dto->return_line()).size(), &was_closed);
+}
+
 uint8_t ServerProtocol::recv_comand(bool &was_closed)
 {
     uint8_t comando;
@@ -63,11 +79,11 @@ Dto *ServerProtocol::decode(bool &was_closed)
     return dto;
 }
 
-void ServerProtocol::send_position(bool &was_closed, std::vector<uint32_t> pos)
-{
-    uint32_t x = htonl(pos[1]);
-    uint32_t y = htonl(pos[0]);
+// void ServerProtocol::send_position(bool &was_closed, std::vector<uint32_t> pos)
+// {
+//     uint32_t x = htonl(pos[1]);
+//     uint32_t y = htonl(pos[0]);
 
-    skt.sendall(&(x), sizeof(x), &was_closed);
-    skt.sendall(&(y), sizeof(y), &was_closed);
-}
+//     skt.sendall(&(x), sizeof(x), &was_closed);
+//     skt.sendall(&(y), sizeof(y), &was_closed);
+// }

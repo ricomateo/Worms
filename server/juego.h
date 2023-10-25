@@ -30,10 +30,11 @@ public:
     void mover();
     void saltar(uint8_t orientacion);
     void armar_escenario();
+    std::string mapa_fila(int fila);
+    int filas();
 
 private:
     int direccion;
-    // std::vector<int> posicionG;
     std::string nombre_archivo;
     Worm gusano;
     Escenario escenario;

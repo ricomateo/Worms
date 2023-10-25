@@ -19,11 +19,12 @@
 #include "socket.h"
 #include "thread.h"
 #include "server_protocol.h"
+#include "juego.h"
 
 class ServerClient
 {
 public:
-    ServerClient(Socket &&socket, Broadcaster &b);
+    ServerClient(Socket &&socket, Broadcaster &b, Juego &j);
     ~ServerClient();
     bool is_dead();
     void join();
@@ -37,6 +38,7 @@ public:
 private:
     Socket skt;
     Broadcaster &broadcaster;
+    Juego &game;
     ServerProtocol serverproto;
     Receiver recv_th;
     Sender send_th;

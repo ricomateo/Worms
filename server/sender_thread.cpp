@@ -1,14 +1,22 @@
 #include "sender_thread.h"
 
-Sender::Sender(ServerProtocol &p, BlockingQueue &q) : protocol(p), queue(q), was_closed(false) {}
+Sender::Sender(ServerProtocol &p, BlockingQueue &q, Juego &game, Broadcaster &b) : protocol(p), queue(q), game(game), broadcaster(b), was_closed(false) {}
 
+void Sender::makeMove(Dto *dto)
+{
+
+    if (dto->return_code() == CODE_MOVE)
+        game.mover();
+    else if (dto->return_code() == CODE_DIR)
+        game.invertirDireccion(dto->orientation());
+    else if (dto->return_code() == CODE_JUMP)
+        game.saltar(dto->orientation());
+
+    Position *pos = new Position(game.posicionGusano());
+    broadcaster.addPositionToQueues(pos, game.posicionGusano());
+}
 void Sender::run()
 {
-    Juego game("escenarios.txt");
-    game.armar_escenario();
-    std::vector<uint32_t> posiciones = game.posicionGusano();
-    protocol.send_position(was_closed, posiciones);
-
     while (not was_closed)
     {
         Dto *dto = queue.pop();
@@ -19,23 +27,14 @@ void Sender::run()
             delete dto;
         }
 
-        if (dto->return_code() == CODE_MOVE)
-        {
-            game.mover();
-        }
-        else if (dto->return_code() == CODE_DIR)
-        {
-            game.invertirDireccion(dto->orientation());
-        }
-        else if (dto->return_code() == CODE_JUMP)
-        {
-            game.saltar(dto->orientation());
-        }
+        if (dto->return_code() == 4)
+            protocol.sendMap(dto, was_closed);
+        else if (dto->return_code() == 5)
+            protocol.sendPosition(dto, was_closed);
+        else
+            makeMove(dto);
 
-        game.imprimir();
-
-        std::vector<uint32_t> pos = game.posicionGusano();
-        protocol.send_position(was_closed, pos);
+        // game.imprimir();
 
         delete dto;
     }

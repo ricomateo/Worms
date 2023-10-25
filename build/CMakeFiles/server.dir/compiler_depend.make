@@ -656,7 +656,12 @@ CMakeFiles/server.dir/common/dto.cpp.o: ../common/dto.cpp \
   /usr/include/c++/11/bits/basic_ios.tcc \
   /usr/include/c++/11/bits/ostream.tcc \
   /usr/include/c++/11/istream \
-  /usr/include/c++/11/bits/istream.tcc
+  /usr/include/c++/11/bits/istream.tcc \
+  /usr/include/c++/11/vector \
+  /usr/include/c++/11/bits/stl_uninitialized.h \
+  /usr/include/c++/11/bits/stl_vector.h \
+  /usr/include/c++/11/bits/stl_bvector.h \
+  /usr/include/c++/11/bits/vector.tcc
 
 CMakeFiles/server.dir/common/liberror.cpp.o: ../common/liberror.cpp \
   /usr/include/stdc-predef.h \
@@ -2510,11 +2515,8 @@ CMakeFiles/server.dir/server/sender_thread.cpp.o: ../server/sender_thread.cpp \
   /usr/include/c++/11/bits/stl_heap.h \
   /usr/include/c++/11/bits/stl_queue.h \
   ../common/dto.h \
-  ../common/socket.h \
-  ../common/thread.h \
-  /usr/include/c++/11/atomic \
-  /usr/include/c++/11/bits/atomic_base.h \
-  /usr/include/c++/11/bits/atomic_lockfree_defines.h \
+  ../common/broadcaster.h \
+  ../common/blockingqueue.h \
   ../server/server_protocol.h \
   /usr/include/c++/11/functional \
   /usr/include/c++/11/bits/std_function.h \
@@ -2530,6 +2532,12 @@ CMakeFiles/server.dir/server/sender_thread.cpp.o: ../server/sender_thread.cpp \
   /usr/include/c++/11/bits/stl_tempbuf.h \
   /usr/include/c++/11/bits/uniform_int_dist.h \
   ../common/dto.h \
+  ../common/socket.h \
+  ../common/thread.h \
+  /usr/include/c++/11/atomic \
+  /usr/include/c++/11/bits/atomic_base.h \
+  /usr/include/c++/11/bits/atomic_lockfree_defines.h \
+  ../server/server_protocol.h \
   ../server/juego.h
 
 CMakeFiles/server.dir/server/server.cpp.o: ../server/server.cpp \

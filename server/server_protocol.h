@@ -24,7 +24,8 @@ public:
     explicit ServerProtocol(Socket &skt);
     ~ServerProtocol();
     Dto *decode(bool &was_closed);
-    void send_position(bool &was_closed, std::vector<uint32_t> pos);
+    void sendPosition(Dto *dto, bool &was_closed);
+    void sendMap(Dto *dto, bool &was_closed);
 
 private:
     Socket &skt;

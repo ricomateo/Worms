@@ -30,9 +30,18 @@ private:
     Socket skt;
     ClientProtocol protocolo;
     bool was_closed;
+    std::vector<std::vector<char>> matriz;
+    uint32_t x;
+    uint32_t y;
+    int filas;
+    int columnas;
 
     void encode(std::string data);
     void receiveNTimes(std::string data, size_t pos);
     void closeEverything();
+    void chargeMap();
+    void addLineToMap(Dto *dto, int fila);
+    void imprimirMapa();
+    void receivePosition();
 };
 #endif

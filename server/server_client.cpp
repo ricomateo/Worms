@@ -1,10 +1,10 @@
 #include "server_client.h"
 
-ServerClient::ServerClient(Socket &&socket, Broadcaster &b) : skt(std::move(socket)),
-                                                              broadcaster(b),
-                                                              serverproto(std::ref(skt)),
-                                                              recv_th(std::ref(serverproto), std::ref(queue), std::ref(b)),
-                                                              send_th(std::ref(serverproto), std::ref(queue)) {}
+ServerClient::ServerClient(Socket &&socket, Broadcaster &b, Juego &j) : skt(std::move(socket)),
+                                                                        broadcaster(b), game(j),
+                                                                        serverproto(std::ref(skt)),
+                                                                        recv_th(std::ref(serverproto), std::ref(queue), std::ref(b)),
+                                                                        send_th(std::ref(serverproto), std::ref(queue), std::ref(game), std::ref(b)) {}
 
 ServerClient::~ServerClient() {}
 

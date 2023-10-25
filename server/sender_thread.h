@@ -10,6 +10,7 @@
 #include <netinet/in.h>
 
 #include "blockingqueue.h"
+#include "broadcaster.h"
 #include "socket.h"
 #include "thread.h"
 #include "server_protocol.h"
@@ -24,12 +25,15 @@ struct Sender : public Thread
 private:
     ServerProtocol &protocol;
     BlockingQueue &queue;
+    Juego &game;
+    Broadcaster &broadcaster;
 
 public:
     bool was_closed;
 
-    Sender(ServerProtocol &p, BlockingQueue &q);
+    Sender(ServerProtocol &p, BlockingQueue &q, Juego &game, Broadcaster &b);
     void run() override;
+    void makeMove(Dto *dto);
 };
 
 #endif

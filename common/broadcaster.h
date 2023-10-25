@@ -17,7 +17,9 @@ private:
     std::mutex mutex;
 
 public:
+    void sendLineMap(Dto *dto);
     void addMessageToQueues();
+    void addPositionToQueues(Dto *dto, std::vector<uint32_t> pos);
     void addMoveToQueues(Dto *dto);
     void addDirToQueues(Dto *dto);
     void addJumpToQueues(Dto *dto);
