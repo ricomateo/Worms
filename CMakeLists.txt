@@ -12,6 +12,9 @@ option(threads "Usar threads" ON) # Define una opción llamada "threads" que se 
 option(static "Compilar estáticamente" OFF) # Define una opción llamada "static" que se establece en "OFF" de forma predeterminada. Esto se utilizará para determinar si se debe compilar estáticamente.
 option(wrapsocks "Simular pérdida de bytes en sockets" ON) # Define una opción llamada "wrapsocks" que se establece en "ON" de forma predeterminada. Esto se utilizará para simular pérdida de bytes en sockets.
 
+option(BUILD_TESTS "Build tests" ON)
+
+
 # Establece variables en el proyecto.
 # Establecen las versiones de los estándares de C y C++ que se utilizarán.
 set(CSTD c17)
@@ -45,6 +48,8 @@ include_directories(common/Dtos)
 include_directories(client)
 include_directories(server)
 
+include_directories(include(googleTest))
+
 # Se utilizan para buscar archivos y almacenarlos en variables. 
 # Se buscan archivos con extensiones .cpp y .h en los directorios common, client y server, y se almacenan en las variables correspondientes.
 file(GLOB COMMON_SOURCES common/*.cpp *.$(extension))
@@ -68,3 +73,10 @@ add_executable(server ${DTO_HEADERS} ${COMMON_HEADERS} ${SERVER_HEADERS} ${DTO_S
 target_link_libraries(client ${LINK_LIBS})
 target_link_libraries(server ${LINK_LIBS})
 
+# Configuramos las pruebas si BUILD_TESTS está habilitado
+if (BUILD_TESTS)
+    enable_testing()
+    add_executable(test1 tests/test1.cpp)  # Agregamos test1.cpp
+    target_link_libraries(test1 gtest gtest_main)
+    add_test(NAME Test1 COMMAND test1)
+endif()
