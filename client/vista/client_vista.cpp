@@ -6,7 +6,14 @@
 #define ANCHO_VENTANA 640
 #define ALTO_VENTANA 480
 
-Vista::Vista() {}
+#define FILAS 5
+#define COLUMNAS 9
+
+Vista::Vista(MockClient &cliente): cliente(cliente) {}
+
+float Vista::convertidor(float valor)  {
+	return valor * 24;
+}
 
 int Vista::iniciar() {
     // cliente.conectarse();
@@ -58,24 +65,35 @@ int Vista::iniciar() {
     // Cargamos la fuente de la letra y le ajustamos un tamaño de 12 pt
 	Font font(DATA_PATH "/Vera.ttf", 12);
 
-	// Estado del juego
-	Jugador jugador({"Alan", 100, 0.0, false, false, -1});
-
 	unsigned int prev_ticks = SDL_GetTicks();
-	// Main loop
+
+	unsigned int tiempoInicial = SDL_GetTicks(); // Tiempo transcurrido en milisegundos desde que se inicializo SDL o desde que se llamo a la funcion SDL_Init(). .Devuelve el tiempo transcurrido como un valor entero sin signo (Uint32).
+	unsigned int cuentaRegresiva = 60000; // 60 segundos en milisegundos
+
 	while (1) {
-		// Timing: calculate difference between this and previous frame
-		// in milliseconds
+		// Timing: Calculamos la diferencie entre este y el anterior frame en milisegundos
 		unsigned int frame_ticks = SDL_GetTicks();
 		unsigned int frame_delta = frame_ticks - prev_ticks;
 		prev_ticks = frame_ticks;
 
-        if (handleEvents(jugador)) {
+		unsigned int tiempoActual = SDL_GetTicks();
+		unsigned int tiempoTranscurrido = tiempoActual - tiempoInicial; 
+		unsigned int tiempoRestante = cuentaRegresiva - tiempoTranscurrido;
+
+		if (tiempoTranscurrido > cuentaRegresiva) {
+			tiempoInicial = tiempoActual;
+		}
+
+		// Estado del juego
+		Gusano gusano = this->cliente.get_gusano();
+		Animacion animacion({gusano, false, false, -1});
+
+        if (handleEvents(animacion, sprites)) {
 			return 0;
 		}
 
-		actualizar(renderer, jugador, frame_ticks, frame_delta);
-		renderizar(renderer, sprites, viga, background, agua, font, jugador);
+		// actualizar(renderer, animacion, frame_ticks, frame_delta);
+		renderizar(renderer, sprites, viga, background, agua, font, animacion, tiempoRestante);
 
 		// Frame limiter: sleep for a little bit to not eat 100% of CPU
 		SDL_Delay(1);
@@ -84,7 +102,7 @@ int Vista::iniciar() {
     return 0;
 }
 
-bool Vista::handleEvents(Jugador &jugador) {
+bool Vista::handleEvents(Animacion &animacion, SDL2pp::Texture &sprites) {
 	// Procesamiento de evento
 	SDL_Event event;
 
@@ -94,6 +112,23 @@ bool Vista::handleEvents(Jugador &jugador) {
 		// Si la ventana se cierra terminamos la ejecucion
 		if (event.type == SDL_QUIT) {
 			return true;
+
+		// Si se hace click ...
+		} else if (event.type == SDL_MOUSEBUTTONDOWN) {
+
+			switch (event.button.button) {
+
+				// Si se hace click derecho se muestra el menu de armas
+				case SDL_BUTTON_RIGHT:
+					std::cout << "Click derecho" << std::endl;
+					break;
+
+				// Si se hace click izquierdo...
+				case SDL_BUTTON_LEFT:
+					std::cout << "Click izquierdo - Coordenada x: " + std::to_string(event.button.x) + " - Coordenada y: " + std::to_string(event.button.y) << std::endl;
+					animacion.gusano.x = event.button.x - (ANCHO_SPRITE/2);
+					break;
+			}
 
 		// Si se presiona alguna tecla...
 		} else if (event.type == SDL_KEYDOWN) {
@@ -106,12 +141,14 @@ bool Vista::handleEvents(Jugador &jugador) {
 
 			// Si se presiona la flecha hacia la derecha el gusano se mueve hacia la derecha
 			case SDLK_RIGHT: 
-				jugador.gusano_moviendose = true;
+				animacion.gusano_moviendose = true;
+				sprites.Update(NullOpt, Surface(DATA_PATH "/gusano_caminando_derecha.png").SetColorKey(true, 0));
 				break;
 			
 			// Si se presiona la flecha hacia la izquierda el gusano se mueve hacia la izquierda
 			case SDLK_LEFT: 
-				jugador.gusano_moviendose_izquierda = true; 
+				animacion.gusano_moviendose_izquierda = true; 
+				sprites.Update(NullOpt, Surface(DATA_PATH "/gusano_caminando_izquierda.png").SetColorKey(true, 0));
 				break;
 
 			// Si se presiona la flecha hacia ariba el gusano direcciona su arma
@@ -152,12 +189,12 @@ bool Vista::handleEvents(Jugador &jugador) {
 
 			// Si se suelta la flecha hacia la derecha cambiamos el estado del gusano
 			case SDLK_RIGHT: 
-				jugador.gusano_moviendose = false; 
+				animacion.gusano_moviendose = false; 
 				break;
 			
 			// Si se suelta la flecha hacia la izquierda cambiamos el estado del gusano
 			case SDLK_LEFT: 
-				jugador.gusano_moviendose_izquierda = false; 
+				animacion.gusano_moviendose_izquierda = false; 
 				break;
 
 			// Si se suelta la flecha hacia ariba...
@@ -196,17 +233,19 @@ bool Vista::handleEvents(Jugador &jugador) {
 	return false;
 }
 
-void Vista::renderizar(SDL2pp::Renderer &renderer, SDL2pp::Texture &sprites, SDL2pp::Texture &viga, SDL2pp::Texture &background, SDL2pp::Texture &agua, SDL2pp::Font &font, Jugador &jugador) {
+void Vista::renderizar(SDL2pp::Renderer &renderer, SDL2pp::Texture &sprites, SDL2pp::Texture &viga, SDL2pp::Texture &background, SDL2pp::Texture &agua, SDL2pp::Font &font, Animacion &animacion, Uint32 tiempoRestante) {
 	renderer.Clear();
 
 	renderizar_mapa(renderer, viga, background, agua);
 
-	renderizar_gusano(renderer, sprites, jugador);
+	renderizar_temporizador(renderer, font, tiempoRestante);
 
-	renderizar_nombre(renderer, font, jugador);
-	renderizar_vida(renderer, font, jugador);
+	renderizar_gusano(renderer, sprites, animacion);
 
-	renderizar_posicion(renderer, font, jugador);
+	renderizar_nombre(renderer, font, animacion);
+	renderizar_vida(renderer, font, animacion);
+
+	renderizar_informacion(renderer, font, animacion);
 
 	renderer.Present();
 }
@@ -217,80 +256,98 @@ void Vista::renderizar_mapa(SDL2pp::Renderer &renderer, SDL2pp::Texture &viga, S
 	renderer.Copy(background, NullOpt, NullOpt);
 	renderer.Copy(agua, NullOpt, NullOpt);
 
-	for (int i = 0; i < renderer.GetOutputWidth(); i += 50) {
+	std::vector<Viga> listado_vigas = this->cliente.get_vigas();
+
+	for (int i = 0; i < listado_vigas.size(); i++) {
 		renderer.Copy(
 				viga,
 				Rect(0, 0, 50, 50),
-				Rect(i, vcenter, 50, 50)
+				Rect(convertidor(listado_vigas[i].x), convertidor(listado_vigas[i].y), convertidor(listado_vigas[i].ancho), convertidor(listado_vigas[i].alto))
 			);
 	}
 }
 
-void Vista::renderizar_gusano(SDL2pp::Renderer &renderer, SDL2pp::Texture &sprites, Jugador &jugador) {
-	int vcenter = renderer.GetOutputHeight() / 2;
+void Vista::renderizar_temporizador(SDL2pp::Renderer &renderer, SDL2pp::Font &font, unsigned int tiempoRestante) {
+	Rect borde(5, 438, 65, 36);
+	Color blanco(255, 255, 255, 255);
+	renderer.SetDrawColor(blanco);
+	renderer.FillRect(borde);
+
+	Rect contenedor(7, 440, 61, 32);
+	Color negro(0,0,0,255);
+	renderer.SetDrawColor(negro);
+	renderer.FillRect(contenedor);
+
+	int tiempo = tiempoRestante * 0.001;
+	Surface surface = font.RenderText_Solid(std::to_string(tiempo), blanco);
+	Texture texture(renderer, surface);
+
+	Rect nombre(24, 446, surface.GetWidth() + 5, surface.GetHeight() + 5);
+	renderer.Copy(texture, NullOpt, nombre);
+}
+
+void Vista::renderizar_gusano(SDL2pp::Renderer &renderer, SDL2pp::Texture &sprites, Animacion &animacion) {
 
 	int src_x = 0, src_y = 0;
-	if (jugador.gusano_moviendose) {
+	if (animacion.gusano_moviendose) {
 		src_x = 0;
-		src_y = ALTO_SPRITE * jugador.run_phase;
-		sprites.Update(NullOpt, Surface(DATA_PATH "/gusano_caminando_derecha.png").SetColorKey(true, 0));
+		src_y = ALTO_SPRITE * animacion.run_phase;
 
-	} else if (jugador.gusano_moviendose_izquierda) {
+	} else if (animacion.gusano_moviendose_izquierda) {
 		src_x = 0;
-		src_y = ALTO_SPRITE * jugador.run_phase;
-		sprites.Update(NullOpt, Surface(DATA_PATH "/gusano_caminando_izquierda.png").SetColorKey(true, 0));
+		src_y = ALTO_SPRITE * animacion.run_phase;
 	}
 
 	sprites.SetAlphaMod(255);
 	renderer.Copy(
 			sprites,
 			Rect(src_x, src_y, 50, 50),
-			Rect((int)jugador.gusano_posicion, vcenter - 42, 50, 50)
+			Rect(convertidor(animacion.gusano.x), convertidor(animacion.gusano.y) - 42, 50, 50)
 		);
 }
 
-void Vista::renderizar_nombre(SDL2pp::Renderer &renderer, SDL2pp::Font &font, Jugador &jugador) {
+void Vista::renderizar_nombre(SDL2pp::Renderer &renderer, SDL2pp::Font &font, Animacion &animacion) {
 	int vcenter = renderer.GetOutputHeight() / 2;
 
-	Rect borde((int)jugador.gusano_posicion + 6, vcenter - 77, 50, 21);
+	Rect borde((int)animacion.gusano.x + 6, vcenter - 77, 50, 21);
 	Color blanco(255, 255, 255, 255);
 	renderer.SetDrawColor(blanco);
 	renderer.FillRect(borde);
 
-	Rect contenedor((int)jugador.gusano_posicion + 8, vcenter - 75, 46, 17);
+	Rect contenedor((int)animacion.gusano.x + 8, vcenter - 75, 46, 17);
 	Color negro(0,0,0,255);
 	renderer.SetDrawColor(negro);
 	renderer.FillRect(contenedor);
 
-	Surface surface = font.RenderText_Solid(jugador.nombre, blanco);
+	Surface surface = font.RenderText_Solid(animacion.gusano.nombre, blanco);
 	Texture texture(renderer, surface);
 
-	Rect nombre((int)jugador.gusano_posicion + 18, vcenter - 75, surface.GetWidth(), surface.GetHeight());
+	Rect nombre((int)animacion.gusano.x + 18, vcenter - 75, surface.GetWidth(), surface.GetHeight());
 	renderer.Copy(texture, NullOpt, nombre);
 }
 
-void Vista::renderizar_vida(SDL2pp::Renderer &renderer, SDL2pp::Font &font, Jugador &jugador) {
+void Vista::renderizar_vida(SDL2pp::Renderer &renderer, SDL2pp::Font &font, Animacion &animacion) {
 	int vcenter = renderer.GetOutputHeight() / 2;
 
-	Rect borde((int)jugador.gusano_posicion + 16, vcenter - 52, 29, 21);
+	Rect borde((int)animacion.gusano.x + 16, vcenter - 52, 29, 21);
 	Color blanco(255, 255, 255, 255); 
 	renderer.SetDrawColor(blanco);
 	renderer.FillRect(borde);
 
-	Rect contenedor((int)jugador.gusano_posicion + 18, vcenter - 50, 25, 17);
+	Rect contenedor((int)animacion.gusano.x + 18, vcenter - 50, 25, 17);
 	Color negro(0,0,0,255);
 	renderer.SetDrawColor(negro); 
 	renderer.FillRect(contenedor);
 
-	Surface surface = font.RenderText_Solid(std::to_string(jugador.vida), blanco);
+	Surface surface = font.RenderText_Solid(std::to_string(animacion.gusano.vida), blanco);
 	Texture texture(renderer, surface);
 
-	Rect vida((int)jugador.gusano_posicion + 18, vcenter - 50, surface.GetWidth(), surface.GetHeight());
+	Rect vida((int)animacion.gusano.x + 18, vcenter - 50, surface.GetWidth(), surface.GetHeight());
 	renderer.Copy(texture, NullOpt, vida);
 }
 
-void Vista::renderizar_posicion(SDL2pp::Renderer &renderer, SDL2pp::Font &font, Jugador &jugador) {
-	std::string texto = obtener_texto(jugador);
+void Vista::renderizar_informacion(SDL2pp::Renderer &renderer, SDL2pp::Font &font, Animacion &animacion) {
+	std::string texto = obtener_texto(animacion);
 
 	Texture text_sprite(
 			renderer,
@@ -300,28 +357,28 @@ void Vista::renderizar_posicion(SDL2pp::Renderer &renderer, SDL2pp::Font &font, 
 	renderer.Copy(text_sprite, NullOpt, Rect(0, 0, text_sprite.GetWidth(), text_sprite.GetHeight()));
 }
 
-void Vista::actualizar(SDL2pp::Renderer &renderer, Jugador &jugador, unsigned int &frame_ticks, unsigned int &frame_delta) {
+/*void Vista::actualizar(SDL2pp::Renderer &renderer, Animacion &animacion, unsigned int &frame_ticks, unsigned int &frame_delta) {
 
-	if (jugador.gusano_moviendose) {
-		jugador.gusano_posicion += frame_delta * 0.2;
-		jugador.run_phase = (frame_ticks / 100) % 8;
-	} else if (jugador.gusano_moviendose_izquierda) {
-		jugador.gusano_posicion -= frame_delta * 0.2;
-		jugador.run_phase = (frame_ticks / 100) % 8;
+	if (animacion.gusano_moviendose) {
+		animacion.gusano.x += frame_delta * 0.2 / 24;
+		animacion.run_phase = (frame_ticks / 100) % 8;
+	} else if (animacion.gusano_moviendose_izquierda) {
+		animacion.gusano.x -= frame_delta * 0.2;
+		animacion.run_phase = (frame_ticks / 100) % 8;
 	} else {
-		jugador.run_phase = 0;
+		animacion.run_phase = 0;
 	}
 
-	if (jugador.gusano_posicion > renderer.GetOutputWidth()) {
-		jugador.gusano_posicion = -ANCHO_SPRITE;
+	if (animacion.gusano.x > renderer.GetOutputWidth()) {
+		animacion.gusano.x = -ANCHO_SPRITE;
 	}
 	
-	else if (jugador.gusano_posicion < -ANCHO_SPRITE) {
-		jugador.gusano_posicion = renderer.GetOutputWidth();
+	else if (animacion.gusano.x < -ANCHO_SPRITE) {
+		animacion.gusano.x = renderer.GetOutputWidth();
 	}
-}
+}*/
 
-std::string Vista::obtener_texto(Jugador &jugador) {
-	std::string text = "gusano_posicion: " + std::to_string((int)jugador.gusano_posicion) + ", running: " + (jugador.gusano_moviendose ? "true" : "false");
+std::string Vista::obtener_texto(Animacion &animacion) {
+	std::string text = "Gusano (" + std::to_string((int)animacion.gusano.x) + ", " + std::to_string((int)animacion.gusano.x) + ") - Running: " + (animacion.gusano_moviendose ? "true" : "false");
 	return text;
 }
