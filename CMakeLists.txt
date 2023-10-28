@@ -14,7 +14,6 @@ option(wrapsocks "Simular pérdida de bytes en sockets" ON) # Define una opción
 
 option(BUILD_TESTS "Build tests" ON)
 
-
 # Establece variables en el proyecto.
 # Establecen las versiones de los estándares de C y C++ que se utilizarán.
 set(CSTD c17)
