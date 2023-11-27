@@ -30,7 +30,8 @@ void Lobby::sendMatchList(ServerClient *c)
     std::shared_ptr<ListaDePartidas> partidas_disponibles = std::make_shared<ListaDePartidas>();
     for (Partida *p : partidas)
     {
-        if(not p->esta_completa()) {// si no esta completa es porque se puede unir
+        if (not p->esta_completa())
+        { // si no esta completa es porque se puede unir
             partidas_disponibles->addOption(p->getId());
             printf("id disponible: %u\n", p->getId());
         }
