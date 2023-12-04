@@ -65,6 +65,7 @@ private:
     bool timeIsUp();
     void beginNextTurn();
     void increaseHpOfTeamsWithLessPlayers();
+    void matar_worms_del_cliente(uint8_t id);
 public:
     GreenGrenade *greenGrenade = NULL;
     BazookaRocket *bazookaRocket = NULL;

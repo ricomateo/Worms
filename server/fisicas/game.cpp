@@ -358,6 +358,30 @@ void Game::finalizar_juego(std::shared_ptr<Dto> dto)
     stop();
 }
 
+void Game::matar_worms_del_cliente(uint8_t id){
+    std::cout << "matar_worms_del_cliente\n";
+    for (int i = 0; i < (int)players.size(); i++){
+        if(players[i].getId() == id) {
+            players[i].isAlive = false;
+            for (Worm *worm : world.getWorms()) {
+                if (worm->playerId == id) {
+                    /*
+                    if (worm->getId() == actualWormId) {
+                        beginNextTurn();
+                    }
+                    */
+                    //worm->is_alive = false;
+                    numberOfAlivePlayers--;
+                    std::cout << "mato a un worm\n";
+                    worm->state = MUERTO;
+                    worm->takeDamage(worm->getHp());
+                    worm->makeDamage();
+                }
+            }
+        }
+    }
+}
+
 void Game::run()
 {
     begin = std::chrono::steady_clock::now();
@@ -370,6 +394,7 @@ void Game::run()
 
             if (dto->is_alive() && dto->return_code() == FINALIZAR_CODE)
             {
+                matar_worms_del_cliente(dto->get_cliente_id());
                 broadcaster.removeQueueWithId(dto->get_cliente_id()); // elimino la queue del cliente que murio
                 jugadores_en_partida -= 1;
                 if (jugadores_en_partida == 1) // si solo queda un jugador
@@ -483,13 +508,13 @@ void Game::updateWorms()
     // actualizo los gusanos
     for (Worm *worm : world.getWorms())
     {
-        if (worm->is_alive && worm->numberOfContacts > 0 && not worm->isMoving() && worm->getState() != EQUIPANDO_ARMA)
+        if (worm->is_alive && worm->numberOfContacts > 0 && not worm->isMoving() && worm->getState() != EQUIPANDO_ARMA && worm->state != MUERTO)
         {
             worm->state = QUIETO;
         }
         if (worm->is_alive && worm->numberOfContacts == 0 &&
             worm->getState() != SALTANDO_ATRAS && worm->getState() != SALTANDO_ADELANTE &&
-            worm->getState() != GOLPEADO && worm->getVelocity().y < 0.0f)
+            worm->getState() != GOLPEADO && worm->getVelocity().y < 0.0f && worm->state != MUERTO)
         {
             worm->state = CAYENDO;
         }
@@ -547,14 +572,14 @@ void Game::updateWorms()
         {
             worm->updateAngle();
         }
-        int timeSinceTurnStarted = std::chrono::duration_cast<std::chrono::seconds>(end - begin).count();
+        /*int timeSinceTurnStarted = std::chrono::duration_cast<std::chrono::seconds>(end - begin).count();
         if (timeSinceTurnStarted > 2)
         {
             if (worm->getId() != actualWormId)
             {
                 worm->equipWeapon(SIN_ARMA);
             }
-        }
+        }*/
     }
 }
 
@@ -585,7 +610,7 @@ void Game::updatePlayers()
                     break;
                 }
             }
-            broadcaster.notificarCierre(std::make_shared<Dto>(FINALIZAR_CODE, 1));
+            broadcaster.notificarCierre(std::make_shared<Dto>(FINALIZAR_CODE));
             broadcaster.deleteAllQueues(); // aviso a los demas que cierren
             stop();
             return;
